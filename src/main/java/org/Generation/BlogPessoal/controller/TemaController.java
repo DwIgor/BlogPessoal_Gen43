@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequestMapping("/tema")
 public class TemaController {
+	
 	@Autowired
 	private TemaRepository repository;
 	
@@ -36,7 +37,7 @@ public class TemaController {
 	}
 	@GetMapping("/nome/{nome}")
 	public ResponseEntity<List<Tema>> getByName(@PathVariable String nome){
-		return ResponseEntity.ok(repository.findAllByDescricaocontainingIgnoreCase(nome));
+		return ResponseEntity.ok(repository.findAllByDescricaoContainingIgnoreCase(nome));
 	}
 	@PostMapping
 	public ResponseEntity<Tema> post(@RequestBody Tema tema){
@@ -48,7 +49,12 @@ public class TemaController {
 		return ResponseEntity.ok(repository.save(tema));
 	}
 	@DeleteMapping("/{id}")
-	public void delete(@PathVariable long id) {
-		repository.deleteById(id);
+	public ResponseEntity<?> deleteTema(@PathVariable long id){
+		
+		return repository.findById(id).map(resposta -> {
+			repository.deleteById(id);
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		})
+				.orElse(ResponseEntity.notFound().build());
 	}
 }
