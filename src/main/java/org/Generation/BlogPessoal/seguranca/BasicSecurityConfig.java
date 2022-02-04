@@ -2,6 +2,7 @@ package org.Generation.BlogPessoal.seguranca;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,11 +20,14 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(userDetailsService);
+
+		auth.userDetailsService(userDetailsService); // Essas informações viram do banco de dados
+
+		// Estou dizendo para o auth que a estrutura de objeto que ele vai esperar é
+		// e-mail, usuario ...
 		auth.inMemoryAuthentication()
-        .withUser("root")
-        .password(passwordEncoder().encode("root"))
-        .authorities("ROLE_USER");
+
+				.withUser("root").password(passwordEncoder().encode("root")).authorities("ROLE_USER");
 	}
 
 	@Bean
@@ -33,9 +37,10 @@ public class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().antMatchers("/usuarios/logar").permitAll().antMatchers("/usuarios/cadastrar")
-				.permitAll().anyRequest().authenticated().and().httpBasic().and().sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().cors().and().csrf().disable();
+		http.authorizeHttpRequests().antMatchers("/usuarios/logar").permitAll().antMatchers("/usuarios/cadastrar")
+				.permitAll().antMatchers(HttpMethod.OPTIONS).permitAll().anyRequest().authenticated().and().httpBasic()
+				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().cors().and()
+				.csrf().disable();
 	}
 
 }
